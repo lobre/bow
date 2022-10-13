@@ -44,151 +44,169 @@ You are now ready to start developing features!
 
 ### Manually
 
-First, initialize a new project.
+<details>
+  <summary>See details</summary>
 
-```
-mkdir myproject && cd myproject
-go mod init myproject
-```
-
-Gather the dependencies.
-
-```
-go get github.com/bmizerany/pat
-go get github.com/lobre/bow
-```
-
-You will then need to define a base HTML layout.
-
-```
-mkdir -p views/layouts
-cat views/layouts/base.html
-
-<!DOCTYPE html>
-<html lang="us">
-  <head>
-    <meta charset="utf-8" />
-    <meta name="csrf-token" content="{{ csrf }}" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
-
-    <title>{{ template "title" . }}</title>
-
-    <link href='/{{ hash "assets/style.css" }}' rel="stylesheet">
-    <link rel="icon" href='/{{ hash "assets/favicon.ico" }}'>
-
-    {{ block "head"  . }}{{ end }}
-  </head>
-
-  <body>
-    <nav>
-      <a href="/">{{ "Home" }}</a>
-    </nav>
-
-    <main>
-      {{ template "main" . }}
-    </main>
-  </body>
-</html>
-```
-
-> **_NOTE:_** The folders `views` and `layouts` cannot be renamed, and the base layout should be named `base.html`.
-
-Then, let’s create a first HTML page.
-
-```
-cat views/home.html
-
-{{ define "title" }}{{ "Home" }}{{ end }}
-
-<div>"Hello World"</div>
-```
-
-Now, let’s create an assets folder in which you can add your favicon and your css style which will be empty for now.
-
-```
-mkdir assets
-cp <your_icon> assets/favicon.ico
-touch assets/style.css
-```
-
-It is now the time to start implementing our go code! Create a `main.go`.
-
-You will need a `fs.FS` for those just created assets and templates. It is recommended to use an embed, so that they will be contained in your final binary. Add this at the top of your `main.go` file.
-
-```
-var fsys embed.FS
-```
-
-Bow brings a `bow.Core` structure that should be embedded in your own struct. I have defined this struct `application` here in the `main.go` as well.
-
-```
-type application struct {
-	*bow.Core
-
-	// your future own fields
-}
-```
-
-Then create your main func, define an instance of this struct and configure bow.
-
-```
-func main() {
-	app := application{}
-	app.Core, _ = bow.NewCore(fsys)
-}
-```
-
-> **_NOTE:_** For simplicity, we are not dealing with errors here.
-
-We now need to define our application routes. Add this other function to your `main.go`.
-
-```
-func (app *application) routes() http.Handler {
-	chain := app.DynChain()
-	mux := pat.New()
-	mux.Get("/assets/", app.FileServer())
-	mux.Get("/", chain.ThenFunc(app.home))
-	return app.StdChain().Then(mux)
-}
-```
-
-And also our home handler that tells to render the page named `home` and that will correspond to our `views/home.html`.
-
-```
-func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.Views.Render(w, r, "home", nil)
-}
-```
-
-To finish, at the very end of your `main.go`, create an `http.Server` and start the app.
-
-```
-srv := &http.Server{
-	Addr:         ":8080",
-	Handler:      app.routes(),
-	IdleTimeout:  time.Minute,
-	ReadTimeout:  10 * time.Second,
-	WriteTimeout: 30 * time.Second,
-}
-
-err := app.Run(srv)
-```
-
-> **_NOTE:_** Make sure to format your `main.go` and auto import the dependencies.
-
-Build the project.
-
-```
-go build
-```
-
-Finally, run and check your browser at [localhost:8080](https://localhost:8080).
-
-```
-./myproject
-```
-
-You are now ready to start developing features!
+  First, initialize a new project.
+  
+  ```
+  mkdir myproject && cd myproject
+  go mod init myproject
+  ```
+  
+  Gather the dependencies.
+  
+  ```
+  go get github.com/bmizerany/pat
+  go get github.com/lobre/bow
+  ```
+  
+  You will then need to define a base HTML layout.
+  
+  ```
+  mkdir -p views/layouts
+  cat views/layouts/base.html
+  
+  <!DOCTYPE html>
+  <html lang="us">
+    <head>
+      <meta charset="utf-8" />
+      <meta name="csrf-token" content="{{ csrf }}" />
+      <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+  
+      <title>{{ template "title" . }}</title>
+  
+      <link href='/{{ hash "assets/style.css" }}' rel="stylesheet">
+      <link rel="icon" href='/{{ hash "assets/favicon.ico" }}'>
+  
+      {{ block "head"  . }}{{ end }}
+    </head>
+  
+    <body>
+      <nav>
+        <a href="/">{{ "Home" }}</a>
+      </nav>
+  
+      <main>
+        {{ template "main" . }}
+      </main>
+    </body>
+  </html>
+  ```
+  
+  > **_NOTE:_** The folders `views` and `layouts` cannot be renamed, and the base layout should be named `base.html`.
+  
+  Then, let’s create a first HTML page.
+  
+  ```
+  cat views/home.html
+  
+  {{ define "title" }}{{ "Home" }}{{ end }}
+  
+  <div>"Hello World"</div>
+  ```
+  
+  Now, let’s create an assets folder in which you can add your favicon and your css style which will be empty for now.
+  
+  ```
+  mkdir assets
+  cp <your_icon> assets/favicon.ico
+  touch assets/style.css
+  ```
+  
+  It is now the time to start implementing our go code! Create a `main.go`.
+  
+  You will need a `fs.FS` for those just created assets and templates. It is recommended to use an embed, so that they will be contained in your final binary. Add this at the top of your `main.go` file.
+  
+  ```
+  //go:embed assets
+  //go:embed views
+  var fsys embed.FS
+  ```
+  
+  Bow brings a `bow.Core` structure that should be embedded in your own struct. I have defined this struct `application` here in the `main.go` as well.
+  
+  ```
+  type application struct {
+  	*bow.Core
+  
+  	// your future own fields
+  }
+  ```
+  
+  Then create your main func, define an instance of this struct and configure bow.
+  
+  ```
+  func main() {
+  	app := application{}
+  	app.Core, err_ = bow.NewCore(fsys)
+  	if err != nil {
+  		panic(err)
+  	}
+  }
+  ```
+  
+  We now need to define our application routes. Add this other function to your `main.go`.
+  
+  ```
+  func (app *application) routes() http.Handler {
+  	chain := app.DynChain()
+  	mux := pat.New()
+  	mux.Get("/assets/", app.FileServer())
+  	mux.Get("/", chain.ThenFunc(app.home))
+  	return app.StdChain().Then(mux)
+  }
+  ```
+  
+  And also our home handler that tells to render the page named `home` and that will correspond to our `views/home.html`.
+  
+  ```
+  func (app *application) home(w http.ResponseWriter, r *http.Request) {
+  	app.Views.Render(w, r, "home", nil)
+  }
+  ```
+  
+  To finish, at the end of your `main.go`, create an `http.Server` and run the app.
+  
+  ```
+  func main() {
+  	app := application{}
+  	app.Core, err_ = bow.NewCore(fsys)
+  	if err != nil {
+  		panic(err)
+  	}
+  	
+  	srv := &http.Server{
+  		Addr:         ":8080",
+  		Handler:      app.routes(),
+  		IdleTimeout:  time.Minute,
+  		ReadTimeout:  10 * time.Second,
+  		WriteTimeout: 30 * time.Second,
+  	}
+  	
+  	err := app.Run(srv)
+  	if err != nil {
+  		panic(err)
+  	}
+  }
+  ```
+  
+  > **_NOTE:_** Make sure to format your `main.go` and auto-import the dependencies.
+  
+  Build the project.
+  
+  ```
+  go build
+  ```
+  
+  Finally, run and check your browser at [localhost:8080](https://localhost:8080).
+  
+  ```
+  ./myproject
+  ```
+  
+  You are now ready to start developing features!
+</details>
 
 ## Features
 
