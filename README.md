@@ -46,7 +46,7 @@ You are now ready to start developing features!
 
 <details>
   <summary>See details</summary>
-
+  <p>
 
   First, initialize a new project.
   
