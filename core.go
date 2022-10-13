@@ -79,7 +79,7 @@ func NewCore(fsys fs.FS, options ...Option) (*Core, error) {
 	return core, nil
 }
 
-// Option configures an core.
+// Option configures a core.
 type Option func(*Core) error
 
 // WithLogger is an option to set the application logger.
