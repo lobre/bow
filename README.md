@@ -91,7 +91,7 @@ cat views/layouts/base.html
 </html>
 ```
 
-> **_NOTE:_** The folders `views` and `layouts` cannot be renamed, and the base layout should be named `base.html`. This is for the sake of simplicity.
+> **_NOTE:_** The folders `views` and `layouts` cannot be renamed, and the base layout should be named `base.html`.
 
 Then, let’s create a first HTML page.
 
@@ -111,6 +111,8 @@ cp <your_icon> assets/favicon.ico
 touch assets/style.css
 ```
 
+It is now the time to start implementing our go code! Create a `main.go`.
+
 You will need a `fs.FS` for those just created assets and templates. It is recommended to use an embed, so that they will be contained in your final binary. Add this at the top of your `main.go` file.
 
 ```
@@ -123,20 +125,22 @@ Bow brings a `bow.Core` structure that should be embedded in your own struct. I 
 type application struct {
 	*bow.Core
 
-    // your own fields
+	// your future own fields
 }
 ```
 
-Then define an instance of this struct and configure bow.
+Then create your main func, define an instance of this struct and configure bow.
 
 ```
-app := application{}
-app.Core, err = bow.NewCore(
-    fsys,
-)
+func main() {
+	app := application{}
+	app.Core, _ = bow.NewCore(fsys)
+}
 ```
 
-We now need to define our application routes.
+> **_NOTE:_** For simplicity, we are not dealing with errors here.
+
+We now need to define our application routes. Add this other function to your `main.go`.
 
 ```
 func (app *application) routes() http.Handler {
@@ -148,7 +152,7 @@ func (app *application) routes() http.Handler {
 }
 ```
 
-And our home handler that tells to render the page named `home` and that will correspond to our `views/home.html`.
+And also our home handler that tells to render the page named `home` and that will correspond to our `views/home.html`.
 
 ```
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
@@ -156,19 +160,21 @@ func (app *application) home(w http.ResponseWriter, r *http.Request) {
 }
 ```
 
-To finish, create an `http.Server` and start the app.
+To finish, at the very end of your `main.go`, create an `http.Server` and start the app.
 
 ```
 srv := &http.Server{
-    Addr:         ":8080",
-    Handler:      app.routes(),
-    IdleTimeout:  time.Minute,
-    ReadTimeout:  10 * time.Second,
-    WriteTimeout: 30 * time.Second,
+	Addr:         ":8080",
+	Handler:      app.routes(),
+	IdleTimeout:  time.Minute,
+	ReadTimeout:  10 * time.Second,
+	WriteTimeout: 30 * time.Second,
 }
 
 err := app.Run(srv)
 ```
+
+> **_NOTE:_** Make sure to format your `main.go` and auto import the dependencies.
 
 Build the project.
 
