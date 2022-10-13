@@ -2,7 +2,20 @@
 
 Bow wraps a minimal amount of go libraries to quickly bootstrap a capable web project.
 
-## What’s more than net/http?
+## What’s more than net/http and html/template?
+
+Go comes with a really solid standard library, powered with robust packages that you can directly use for your production web applications. The community is well-known to be against frameworks by definition, especially when it comes to web applications. And it is probably true to a certain degree. I am really in favour of using those packages, but in my opinion, there are still missing bits to build modern and secure web applications. I am talking about:
+
+- A HTTP router/muxer that supports patterns.
+- A fast template engine that supports partials and layouts.
+- A migration system for databases.
+- Middlewares to automatically apply security headers to our responses.
+- A session system to store state information about users.
+- Be able to push flash messages to the user.
+- An easy way to create forms with validation, with CSRF protection.
+- A simple way to do translations.
+
+So all of that to say that `net/http` and `html/template` and not sufficient to build a real web application. That’s why bow was initiated, to pack additional small and effective libraries to fill the gaps.
 
 ## Getting started
 
@@ -209,7 +222,15 @@ You are now ready to start developing features!
   You are now ready to start developing features!
 </details>
 
-## Features
+## Other features
+
+The getting started guide explains how to get started as quickly as possible. However, there are 3 other features that can be enabled through `bow init`.
+
+- `bow init -with-db`: To allow having a sqlite connection with a migration system.
+- `bow init -with-session`: To allow having a persistent secured session stored in a user cookie.
+- `bow init -with-translator`: To allow having simple translation capabilities from `csv` files.
+
+Also, feel free to explore the [go documentation of bow](https://pkg.go.dev/github.com/lobre/bow), to better understand what it brings to the table.
 
 ## Framework or not?
 
@@ -233,7 +254,10 @@ The choice of those dependencies has been made carefully to include only small, 
 
 ## Acknowledgement
 
-This project has been heavily inspired by the awesome work of Alex Edwards documented in his book [Let’s Go](https://lets-go.alexedwards.net/).
+This project has been heavily inspired by the awesome work of:
+
+- Alex Edwards and his book [Let’s Go](https://lets-go.alexedwards.net/).
+- Ben Johnson and its project [wtf](https://github.com/benbjohnson/wtf).
 
 ## Projects
 
