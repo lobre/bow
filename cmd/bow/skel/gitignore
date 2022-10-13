@@ -1,0 +1,6 @@
+[[ .Binary ]]
+[[- if .WithDB ]]
+[[ .Binary ]].db
+[[ .Binary ]].db-shm
+[[ .Binary ]].db-wal
+[[- end ]]

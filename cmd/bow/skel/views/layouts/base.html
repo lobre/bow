@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="[[ if .WithTranslator ]]{{ lang }}[[ else ]]en[[ end ]]">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="csrf-token" content="{{ csrf }}" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, minimum-scale=1" />
+
+    <title>{{ template "title" . }} - [[ .Binary ]]</title>
+
+    <link href='/{{ hash "assets/style.css" }}' rel="stylesheet">
+    <link rel="icon" href='/{{ hash "assets/favicon.ico" }}'>
+
+    {{ block "head"  . }}{{ end }}
+  </head>
+
+  <body>
+    <nav>
+      <a href="/">{{ "Home"[[ if .WithTranslator ]] | translate[[ end ]] }}</a>
+    </nav>
+    [[- if .WithSession ]]
+
+    {{ with flash }}
+      <div id="flash">
+        <p>{{ .[[ if .WithTranslator ]] | translate[[ end ]] }}</p>
+      </div>
+    {{ end }}
+    [[- end ]]
+
+    <main>
+      {{ template "main" . }}
+    </main>
+  </body>
+</html>
