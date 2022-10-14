@@ -10,6 +10,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/benbjohnson/hashfs"
@@ -42,7 +43,7 @@ func NewCore(fsys fs.FS, options ...Option) (*Core, error) {
 		Logger: log.New(os.Stdout, "", log.Ldate|log.Ltime),
 
 		CSP: map[string]string{
-			"default-src": "'self'"
+			"default-src": "'self'",
 		},
 
 		fsys:  fsys,
