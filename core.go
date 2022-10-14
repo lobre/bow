@@ -274,7 +274,7 @@ func (core *Core) secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var b strings.Builder
 		for k, v := range core.CSP {
-			fmt.Fprintf(b, "%s %s;", k, v)
+			fmt.Fprintf(&b, "%s %s;", k, v)
 		}
 
 		w.Header().Set("Content-Security-Policy", b.String())
