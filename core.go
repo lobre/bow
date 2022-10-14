@@ -29,6 +29,7 @@ type Core struct {
 	DB      *DB
 	Views   *Views
 	Session *sessions.Session
+	CSP     map[string]string
 
 	translator *Translator
 }
@@ -39,6 +40,10 @@ func NewCore(fsys fs.FS, options ...Option) (*Core, error) {
 
 	core := &Core{
 		Logger: log.New(os.Stdout, "", log.Ldate|log.Ltime),
+
+		CSP: map[string]string{
+			"default-src": "'self'"
+		},
 
 		fsys:  fsys,
 		hfsys: hfsys,
@@ -220,7 +225,7 @@ func (core *Core) StdChain() alice.Chain {
 	return alice.New(
 		core.recoverPanic,
 		core.logRequest,
-		secureHeaders,
+		core.secureHeaders,
 		methodOverride,
 	)
 }
@@ -264,10 +269,18 @@ func (core *Core) recoverPanic(next http.Handler) http.Handler {
 
 // secureHeaders is a middleware that injects headers in the response
 // to prevent XSS and Clickjacking attacks.
-func secureHeaders(next http.Handler) http.Handler {
+func (core *Core) secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		w.Header().Set("X-XSS-Protection", "1; mode=block")
+		var b strings.Builder
+		for k, v := range core.CSP {
+			fmt.Fprintf(b, "%s %s;", k, v)
+		}
+
+		w.Header().Set("Content-Security-Policy", b.String())
+		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
+		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "deny")
+		w.Header().Set("X-XSS-Protection", "0")
 
 		next.ServeHTTP(w, r)
 	})
