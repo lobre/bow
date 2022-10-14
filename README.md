@@ -11,7 +11,7 @@ Go comes with a really solid standard library, powered with robust packages that
 - A migration system for databases.
 - Middlewares to automatically apply security headers to our responses.
 - A session system to store state information about users.
-- Be able to push flash messages to the user.
+- Flash messages.
 - An easy way to create forms with validation, with CSRF protection.
 - A simple way to do translations.
 
@@ -240,7 +240,7 @@ Following that definition, I don’t consider bow to be a web framework. It is s
 
 ## Dependencies
 
-The goal of the project was to a minimal set of dependencies.
+To me, having a minimal set of dependencies is key. Less code, less maintenance, fewer security issues.
 
 The choice of those dependencies has been made carefully to include only small, strongly built and focused libraries that were not worth reimplementing.
 

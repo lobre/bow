@@ -221,6 +221,7 @@ func (core *Core) StdChain() alice.Chain {
 		core.recoverPanic,
 		core.logRequest,
 		secureHeaders,
+		methodOverride,
 	)
 }
 
@@ -267,6 +268,30 @@ func secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		w.Header().Set("X-XSS-Protection", "1; mode=block")
 		w.Header().Set("X-Frame-Options", "deny")
+
+		next.ServeHTTP(w, r)
+	})
+}
+
+// methodOverride is a middleware to allow to spoof the HTTP method.
+// As html form only allow GET and POST, it allows the developer to extend
+// that to PUT, PATCH and DELETE using a hidden input in the form.
+//
+// <input type="hidden" name="_method" value="PUT">
+func methodOverride(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		// only act on POST requests
+		if r.Method == "POST" {
+			method := r.PostFormValue("_method")
+			if method == "" {
+				method = r.Header.Get("X-HTTP-Method-Override")
+			}
+		}
+
+		// make sure it is a valid http method
+		if method == "PUT" || method == "PATCH" || method == "DELETE" {
+			r.Method = method
+		}
 
 		next.ServeHTTP(w, r)
 	})
