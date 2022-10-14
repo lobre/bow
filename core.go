@@ -286,11 +286,11 @@ func methodOverride(next http.Handler) http.Handler {
 			if method == "" {
 				method = r.Header.Get("X-HTTP-Method-Override")
 			}
-		}
 
-		// make sure it is a valid http method
-		if method == "PUT" || method == "PATCH" || method == "DELETE" {
-			r.Method = method
+			// make sure it is a valid http method
+			if method == "PUT" || method == "PATCH" || method == "DELETE" {
+				r.Method = method
+			}
 		}
 
 		next.ServeHTTP(w, r)
