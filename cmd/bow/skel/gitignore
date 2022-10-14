@@ -4,3 +4,4 @@
 [[ .Binary ]].db-shm
 [[ .Binary ]].db-wal
 [[- end ]]
+/vendor
