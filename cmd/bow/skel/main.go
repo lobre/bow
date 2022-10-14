@@ -82,7 +82,6 @@ func run(args []string, stdout io.Writer) error {
 
 	app.Core, err = bow.NewCore(
 		fsys,
-		bow.WithGlobals(app.addGlobals),
 		[[- if .WithDB ]]
 		bow.WithDB(cfg.dsn),
 		[[- end ]]
