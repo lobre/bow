@@ -3,16 +3,16 @@ package main
 import (
 	"net/http"
 
-	"github.com/bmizerany/pat"
+	"github.com/julienschmidt/httprouter"
 )
 
 func (app *application) routes() http.Handler {
 	chain := app.DynChain()
 
-	mux := pat.New()
+	router := httprouter.New()
 
-	mux.Get("/assets/", app.FileServer())
-	mux.Get("/", chain.ThenFunc(app.home))
+	router.Handler(http.MethodGet, "/assets/", app.FileServer())
+	router.Handler(http.MethodGet, "/", chain.ThenFunc(app.home))
 
-	return app.StdChain().Then(mux)
+	return app.StdChain().Then(router)
 }

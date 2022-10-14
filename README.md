@@ -71,7 +71,7 @@ You are now ready to start developing features!
   Gather the dependencies.
   
   ```
-  go get github.com/bmizerany/pat
+  go get github.com/julienschmidt/httprouter
   go get github.com/lobre/bow
   ```
   
@@ -165,10 +165,10 @@ You are now ready to start developing features!
   ```
   func (app *application) routes() http.Handler {
   	chain := app.DynChain()
-  	mux := pat.New()
-  	mux.Get("/assets/", app.FileServer())
-  	mux.Get("/", chain.ThenFunc(app.home))
-  	return app.StdChain().Then(mux)
+  	router := httprouter.New()
+  	router.Handler(http.MethodGet, "/assets/", app.FileServer())
+  	router.Handler(http.MethodGet, "/", chain.ThenFunc(app.home))
+  	return app.StdChain().Then(router)
   }
   ```
   
@@ -245,7 +245,7 @@ To me, having a minimal set of dependencies is key. Less code, less maintenance,
 The choice of those dependencies has been made carefully to include only small, strongly built and focused libraries that were not worth reimplementing.
 
 - [benbjohnson/hashfs](https://github.com/benbjohnson/hashfs): Append hashes to filename for better HTTP caching.
-- [github.com/bmizerany/pat](https://github.com/bmizerany/pat): A simple pattern muxer for net/http.
+- [github.com/julienschmidt/httprouter](https://github.com/julienschmidt/httprouter): A simple pattern muxer for net/http.
 - [golangcollege/sessions](https://github.com/golangcollege/sessions): Ligthweight HTTP session cookie implementation.
 - [goodsign/monday](https://github.com/goodsign/monday): Minimalist translator for month and day of week names.
 - [justinas/alice](https://github.com/justinas/alice): Easily chain your HTTP middleware functions.

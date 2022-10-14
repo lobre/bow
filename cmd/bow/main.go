@@ -108,7 +108,7 @@ func requireModule() (string, error) {
 	}
 
 	modFile.AddNewRequire("github.com/lobre/bow", "latest", false)
-	modFile.AddNewRequire("github.com/bmizerany/pat", "latest", false)
+	modFile.AddNewRequire("github.com/julienschmidt/httprouter", "latest", false)
 
 	modBytes, err := modFile.Format()
 	if err != nil {
