@@ -24,6 +24,7 @@ var fsys embed.FS
 
 type config struct {
 	port int
+	debug bool
 	[[- if .WithDB ]]
 	dsn string
 	[[- end ]]
@@ -60,6 +61,7 @@ func run(args []string, stdout io.Writer) error {
 	fs := flag.NewFlagSet(args[0], flag.ExitOnError)
 
 	fs.IntVar(&cfg.port, "port", 8080, "http server port")
+	fs.BoolVar(&cfg.debug, "debug", false, "display errors in http responses")
 	[[- if .WithDB ]]
 	fs.StringVar(&cfg.dsn, "dsn", "[[ .Binary ]].db", "database data source name")
 	[[- end ]]
@@ -82,6 +84,7 @@ func run(args []string, stdout io.Writer) error {
 
 	app.Core, err = bow.NewCore(
 		fsys,
+		bow.WithDebug(cfg.debug),
 		[[- if .WithDB ]]
 		bow.WithDB(cfg.dsn),
 		[[- end ]]

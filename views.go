@@ -30,6 +30,7 @@ type ReqFuncMap map[string]func(r *http.Request) interface{}
 // Views is an engine that will render Views from templates.
 type Views struct {
 	Logger *log.Logger
+	Debug  bool // to display errors in http responses
 
 	pages    map[string]*template.Template
 	partials map[string]*template.Template
@@ -287,6 +288,11 @@ func renderBuffered(w io.Writer, tmpl *template.Template, name string, data inte
 func (views *Views) ServerError(w http.ResponseWriter, err error) {
 	trace := fmt.Sprintf("%s\n%s", err.Error(), debug.Stack())
 	views.Logger.Output(2, trace)
+
+	if views.Debug {
+		http.Error(w, trace, http.StatusInternalServerError)
+		return
+	}
 
 	http.Error(w, http.StatusText(http.StatusInternalServerError), http.StatusInternalServerError)
 }

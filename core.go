@@ -107,6 +107,15 @@ func WithCSP(csp map[string]string) Option {
 	}
 }
 
+// WithDebug is an option to spit the server errors directly in
+// http responses, instead of a generic 'Internal Server Error' message.
+func WithDebug(debug bool) Option {
+	return func(core *Core) error {
+		core.Views.Debug = debug
+		return nil
+	}
+}
+
 // WithDB is an option to enable and configure the database access.
 func WithDB(dsn string) Option {
 	return func(core *Core) error {
