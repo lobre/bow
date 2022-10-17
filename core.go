@@ -30,9 +30,9 @@ type Core struct {
 	DB      *DB
 	Views   *Views
 	Session *sessions.Session
-	CSP     map[string]string
 
 	translator *Translator
+	csp        map[string]string
 }
 
 // NewCore creates a core with sane defaults. Options can be used for specific configurations.
@@ -42,7 +42,7 @@ func NewCore(fsys fs.FS, options ...Option) (*Core, error) {
 	core := &Core{
 		Logger: log.New(os.Stdout, "", log.Ldate|log.Ltime),
 
-		CSP: map[string]string{
+		csp: map[string]string{
 			"default-src": "'self'",
 		},
 
@@ -92,6 +92,17 @@ type Option func(*Core) error
 func WithLogger(logger *log.Logger) Option {
 	return func(core *Core) error {
 		core.Logger = logger
+		return nil
+	}
+}
+
+// WithCSP is an option to set the csp rules that will be set on http responses.
+// By default, only default-src : 'self' is defined.
+func WithCSP(csp map[string]string) Option {
+	return func(core *Core) error {
+		for k, v := range csp {
+			core.csp[k] = v
+		}
 		return nil
 	}
 }
@@ -273,7 +284,7 @@ func (core *Core) recoverPanic(next http.Handler) http.Handler {
 func (core *Core) secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var b strings.Builder
-		for k, v := range core.CSP {
+		for k, v := range core.csp {
 			fmt.Fprintf(&b, "%s %s;", k, v)
 		}
 
