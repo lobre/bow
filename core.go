@@ -294,10 +294,10 @@ func (core *Core) secureHeaders(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		var b strings.Builder
 		for k, v := range core.csp {
-			fmt.Fprintf(&b, "%s %s;", k, v)
+			fmt.Fprintf(&b, "%s %s; ", k, v)
 		}
 
-		w.Header().Set("Content-Security-Policy", b.String())
+		w.Header().Set("Content-Security-Policy", strings.TrimSpace(b.String()))
 		w.Header().Set("Referrer-Policy", "origin-when-cross-origin")
 		w.Header().Set("X-Content-Type-Options", "nosniff")
 		w.Header().Set("X-Frame-Options", "deny")
