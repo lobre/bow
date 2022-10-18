@@ -254,7 +254,7 @@ func (core *Core) StdChain() alice.Chain {
 // DynChain returns a chain of middleware that can be applied to all dynamic routes.
 // It injects a CSRF cookie and enable sessions.
 func (core *Core) DynChain() alice.Chain {
-	chain := alice.New(injectCSRFCookie)
+	chain := alice.New(injectCSRF)
 	if core.Session != nil {
 		chain = chain.Append(core.Session.Enable)
 	}
@@ -331,19 +331,25 @@ func methodOverride(next http.Handler) http.Handler {
 	})
 }
 
-// injectCSRFCookie is a middleware that injects an encrypted CSRF token in a cookie.
+// injectCSRF is a middleware that injects an encrypted CSRF token in a cookie.
 // That same token is used as a hidden field in forms (from nosurf.Token()).
 // On the form submission, the server checks that these two values match.
 // So directly trying to post a request to our secured endpoint without this parameter would fail.
 // The only way to submit the form is from our frontend.
-func injectCSRFCookie(next http.Handler) http.Handler {
-	csrfHandler := nosurf.New(next)
-	csrfHandler.SetBaseCookie(http.Cookie{
+func injectCSRF(next http.Handler) http.Handler {
+	handler := nosurf.New(next)
+
+	handler.SetBaseCookie(http.Cookie{
 		HttpOnly: true,
 		Path:     "/",
+		Secure:   true,
 	})
 
-	return csrfHandler
+	handler.SetFailureHandler(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		http.Error(w, "CSRF Validation Failed", http.StatusBadRequest)
+	}))
+
+	return handler
 }
 
 // Flash sets a flash message to the session.
