@@ -75,7 +75,7 @@ func (views *Views) partial(r *http.Request) interface{} {
 		}
 
 		var buf bytes.Buffer
-		if err := views.renderWithFuncs(&buf, r, partial, "main", data); err != nil {
+		if err := views.renderTemplate(&buf, r, partial, "main", data); err != nil {
 			return "", err
 		}
 		return template.HTML(buf.String()), nil
@@ -218,12 +218,12 @@ func templateName(path string) string {
 //
 // For page views, the layout can be set using the WithLayout function or using the ApplyLayout middleware.
 // If no layout is defined, the "base" layout will be chosen. Partial views are rendered without any layout.
-func (views *Views) Render(w http.ResponseWriter, r *http.Request, name string, data interface{}) {
+func (views *Views) Render(w http.ResponseWriter, r *http.Request, status int, name string, data interface{}) {
 	w.Header().Set("Content-Type", "text/html")
 
 	partial, ok := views.partials[name]
 	if ok {
-		if err := views.renderWithFuncs(w, r, partial, "main", data); err != nil {
+		if err := views.renderTemplate(w, r, partial, "main", data); err != nil {
 			views.ServerError(w, err)
 		}
 		return
@@ -247,13 +247,16 @@ func (views *Views) Render(w http.ResponseWriter, r *http.Request, name string, 
 		return
 	}
 
-	if err := views.renderWithFuncs(w, r, view, layout, data); err != nil {
+	// write http status code
+	w.WriteHeader(status)
+
+	if err := views.renderTemplate(w, r, view, layout, data); err != nil {
 		views.ServerError(w, err)
 	}
 }
 
-// renderWithFuncs injects dynamic funcs and renders the given template.
-func (views *Views) renderWithFuncs(w io.Writer, r *http.Request, tmpl *template.Template, name string, data interface{}) error {
+// renderTemplate injects dynamic funcs and renders the given template using a buffer to catch runtime errors.
+func (views *Views) renderTemplate(w io.Writer, r *http.Request, tmpl *template.Template, name string, data interface{}) error {
 	tmpl, err := tmpl.Clone()
 	if err != nil {
 		return err
@@ -265,12 +268,6 @@ func (views *Views) renderWithFuncs(w io.Writer, r *http.Request, tmpl *template
 
 	tmpl.Funcs(views.funcs)
 
-	return renderBuffered(w, tmpl, name, data)
-}
-
-// renderBuffered renders the given template to a buffer, and then to the writer.
-// This way, if there is a problem during the rendering, an error can be returned.
-func renderBuffered(w io.Writer, tmpl *template.Template, name string, data interface{}) error {
 	var buf bytes.Buffer
 	if err := tmpl.ExecuteTemplate(&buf, name, data); err != nil {
 		return err
