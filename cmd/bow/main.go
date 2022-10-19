@@ -166,7 +166,7 @@ func createSkeleton(conf initConfig) error {
 			return nil
 		}
 
-		tmpl, err := template.New(filepath.Base(path)).Delims("[[", "]]").ParseFS(skel, path)
+		tmpl, err := template.New(filepath.Base(path)).Delims("{%", "%}").ParseFS(skel, path)
 		if err != nil {
 			return err
 		}

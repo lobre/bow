@@ -14,38 +14,38 @@ import (
 
 //go:embed assets
 //go:embed views
-[[- if .WithDB ]]
+{%- if .WithDB %}
 //go:embed migrations/*.sql
-[[- end ]]
-[[- if .WithTranslator ]]
+{%- end %}
+{%- if .WithTranslator %}
 //go:embed translations/*.csv
-[[- end ]]
+{%- end %}
 var fsys embed.FS
 
 type config struct {
 	port int
 	debug bool
-	[[- if .WithDB ]]
+	{%- if .WithDB %}
 	dsn string
-	[[- end ]]
-	[[- if .WithSession ]]
+	{%- end %}
+	{%- if .WithSession %}
 	sessionKey string
-	[[- end ]]
-	[[- if .WithTranslator ]]
+	{%- end %}
+	{%- if .WithTranslator %}
 	locale string
-	[[- end ]]
+	{%- end %}
 }
 
 type application struct {
 	*bow.Core
 
 	config config
-	[[- if .WithDB ]]
+	{%- if .WithDB %}
 
 	// TODO: define your repositories
 	// userRepo *StatusRepo
 	// ...
-	[[- end ]]
+	{%- end %}
 }
 
 func main() {
@@ -62,15 +62,15 @@ func run(args []string, stdout io.Writer) error {
 
 	fs.IntVar(&cfg.port, "port", 8080, "http server port")
 	fs.BoolVar(&cfg.debug, "debug", false, "display errors in http responses")
-	[[- if .WithDB ]]
-	fs.StringVar(&cfg.dsn, "dsn", "[[ .Binary ]].db", "database data source name")
-	[[- end ]]
-	[[- if .WithSession ]]
+	{%- if .WithDB %}
+	fs.StringVar(&cfg.dsn, "dsn", "{% .Binary %}.db", "database data source name")
+	{%- end %}
+	{%- if .WithSession %}
 	fs.StringVar(&cfg.sessionKey, "session-key", "xxx", "session key for cookies encryption")
-	[[- end ]]
-	[[- if .WithTranslator ]]
+	{%- end %}
+	{%- if .WithTranslator %}
 	fs.StringVar(&cfg.locale, "locale", "auto", "locale of the application")
-	[[- end ]]
+	{%- end %}
 
 	if err := fs.Parse(args[1:]); err != nil {
 		return err
@@ -85,24 +85,24 @@ func run(args []string, stdout io.Writer) error {
 	app.Core, err = bow.NewCore(
 		fsys,
 		bow.WithDebug(cfg.debug),
-		[[- if .WithDB ]]
+		{%- if .WithDB %}
 		bow.WithDB(cfg.dsn),
-		[[- end ]]
-		[[- if .WithSession ]]
+		{%- end %}
+		{%- if .WithSession %}
 		bow.WithSession(cfg.sessionKey),
-		[[- end ]]
-		[[- if .WithTranslator ]]
+		{%- end %}
+		{%- if .WithTranslator %}
 		bow.WithTranslator(cfg.locale),
-		[[- end ]]
+		{%- end %}
 	)
 	if err != nil {
 		return err
 	}
-	[[- if .WithDB ]]
+	{%- if .WithDB %}
 
 	// inject db into repositories
 	// app.userRepo = &UserRepo{db: app.DB}
-	[[- end ]]
+	{%- end %}
 
 	srv := &http.Server{
 		Addr:         fmt.Sprintf(":%d", cfg.port),
@@ -116,9 +116,9 @@ func run(args []string, stdout io.Writer) error {
 		return err
 	}
 
-	[[ if .WithDB -]]
+	{% if .WithDB -%}
 	return app.DB.Close()
-	[[- else -]]
+	{%- else -%}
 	return nil
-	[[- end ]]
+	{%- end %}
 }
