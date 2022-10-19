@@ -176,7 +176,7 @@ You are now ready to start developing features!
   
   ```
   func (app *application) home(w http.ResponseWriter, r *http.Request) {
-  	app.Views.Render(w, r, "home", nil)
+  	app.Views.Render(w, r, http.StatusOK, "home", nil)
   }
   ```
   

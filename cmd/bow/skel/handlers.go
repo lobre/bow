@@ -13,5 +13,5 @@ type templateData struct {
 }
 
 func (app *application) home(w http.ResponseWriter, r *http.Request) {
-	app.Views.Render(w, r, "home", templateData{})
+	app.Views.Render(w, r, http.StatusOK, "home", templateData{})
 }
